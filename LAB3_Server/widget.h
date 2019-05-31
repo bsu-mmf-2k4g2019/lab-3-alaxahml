@@ -31,6 +31,7 @@ private:
     QLabel *statusLabel = nullptr;
     QTcpServer *tcpServer = nullptr;
     QVector<QString> fortunes;
+    QVector<QTcpSocket*> sockets;
 
     QDataStream in;
     int trType = NO_TRANSACTION_TYPE;

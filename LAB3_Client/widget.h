@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QLabel>
+#include <QTextEdit>
 #include <QPushButton>
 #include <QDataStream>
 #include <QTcpSocket>
@@ -36,6 +37,7 @@ private:
     QLineEdit *fortuneLineEdit = nullptr;
     QPushButton *getFortuneButton = nullptr;
     QPushButton *setFortuneButton = nullptr;
+    QTextEdit *messages = nullptr;
 
     QTcpSocket *tcpSocket = nullptr;
     QDataStream in;

@@ -12,8 +12,10 @@ Widget::Widget(QWidget *parent)
     , hostCombo(new QComboBox)
     , portLineEdit(new QLineEdit)
     , getFortuneButton(new QPushButton("Get Fortune"))
-    , setFortuneButton(new QPushButton("Set Fortune"))
+    , setFortuneButton(new QPushButton("SEND"))
     , tcpSocket(new QTcpSocket(this))
+    , messages(new QTextEdit(this))
+
 {
     qDebug() << "Constructor is called";
     hostCombo->setEditable(true);
@@ -83,6 +85,8 @@ Widget::Widget(QWidget *parent)
     mainLayout->addWidget(getFortuneButton, 3, 1, 1, 1);
     mainLayout->addWidget(setFortuneButton, 4, 1, 1, 1);
     mainLayout->addWidget(quitButton, 3, 0, 1, 1);
+    mainLayout->addWidget(messages,5,1,1,1);
+
 
     portLineEdit->setFocus();
 
@@ -130,8 +134,10 @@ void Widget::requestNewFortune()
                 this, &Widget::readFortune);
     } else if (setFortuneFlag) {
         setFortuneFlag = false;
-        out << WRITE_FORTUNE_MARKER;
+        //out << WRITE_FORTUNE_MARKER;
         out << fortuneLineEdit->text();
+        connect(tcpSocket, &QAbstractSocket::readyRead,
+                this, &Widget::readFortune);
     } else {
         qDebug() << "No action is required";
     }
@@ -162,6 +168,7 @@ void Widget::readFortune()
     fortuneLineEdit->setText(currentFortune);
     getFortuneButton->setEnabled(true);
     setFortuneButton->setEnabled(true);
+    messages->append(currentFortune);
     disconnect(tcpSocket, &QAbstractSocket::readyRead,
                this, &Widget::readFortune);
 }

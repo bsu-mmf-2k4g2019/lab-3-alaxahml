@@ -76,18 +76,36 @@ void Widget::sendFortune()
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
 
-    out << fortunes[QRandomGenerator::global()->bounded(fortunes.size())];
+    for(int i = 0;i < sockets.size();++i){
+
+        out.setDevice(sockets[i]);
+    out << fortunes[fortunes.size()-1];
 
     QTcpSocket *clientConnection = dynamic_cast<QTcpSocket*>(sender());
     clientConnection->write(block);
 
     dropClient(clientConnection);
+    }
 }
 
 void Widget::hanleNewConnection()
 {
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
+    bool is_exist = false;
     in.setDevice(clientConnection);
+
+    for(int i = 0; i < sockets.size();++i){
+        if(clientConnection == sockets[i]){
+            is_exist = true;
+            break;
+        }
+    }
+
+
+    if(!is_exist){
+        sockets.push_back(clientConnection);
+    }
+
     connect(clientConnection, &QAbstractSocket::readyRead, this, &Widget::hanleReadyRead);
 }
 
@@ -96,31 +114,25 @@ void Widget::hanleReadyRead()
     qDebug() << "Read fortune is called";
 
     // Read transaction type
-    if (trType == -1) {
+    /*if (trType == -1) {
         in.startTransaction();
         in >> trType;
         if (!in.commitTransaction())
             return;
-    }
+    }*/
     qDebug() << "Tr type: " << trType;
-
-    if (trType == READ_FORTUNE_MARKER) {
-        sendFortune();
-    } else if (trType == WRITE_FORTUNE_MARKER) {
         QString fortune;
-
         // Read fortune from client
         in.startTransaction();
         in >> fortune;
         if (!in.commitTransaction())
             return;
         qDebug() << "Fortune: " << fortune;
+        if(fortunes.size() < 50) {
         fortunes.push_back(fortune);
+        }
 
-        dropClient(dynamic_cast<QTcpSocket*>(sender()));
-    } else {
-        qDebug() << "Wrong transaction type: " << trType;
-    }
+        sendFortune();
 }
 
 void Widget::dropClient(QTcpSocket *client)
