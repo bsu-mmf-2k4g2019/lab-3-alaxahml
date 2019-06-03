@@ -78,13 +78,15 @@ void Widget::sendFortune()
 
     for(int i = 0;i < sockets.size();++i){
 
-        out.setDevice(sockets[i]);
+    out.setDevice(sockets[i]);
     out << fortunes[fortunes.size()-1];
 
-    QTcpSocket *clientConnection = dynamic_cast<QTcpSocket*>(sender());
-    clientConnection->write(block);
+   // QTcpSocket *clientConnection = dynamic_cast<QTcpSocket*>(sender());
+   // clientConnection->write(block);
 
-    dropClient(clientConnection);
+    //dropClient(clientConnection);
+    sockets[i]->write(block);
+    dropClient(sockets[i]);
     }
 }
 
@@ -94,17 +96,13 @@ void Widget::hanleNewConnection()
     bool is_exist = false;
     in.setDevice(clientConnection);
 
-    for(int i = 0; i < sockets.size();++i){
+    /*for(int i = 0; i < sockets.size();++i){
         if(clientConnection == sockets[i]){
             is_exist = true;
             break;
         }
-    }
-
-
-    if(!is_exist){
+    }*/
         sockets.push_back(clientConnection);
-    }
 
     connect(clientConnection, &QAbstractSocket::readyRead, this, &Widget::hanleReadyRead);
 }
@@ -113,14 +111,6 @@ void Widget::hanleReadyRead()
 {
     qDebug() << "Read fortune is called";
 
-    // Read transaction type
-    /*if (trType == -1) {
-        in.startTransaction();
-        in >> trType;
-        if (!in.commitTransaction())
-            return;
-    }*/
-    qDebug() << "Tr type: " << trType;
         QString fortune;
         // Read fortune from client
         in.startTransaction();
@@ -131,13 +121,16 @@ void Widget::hanleReadyRead()
         if(fortunes.size() < 50) {
         fortunes.push_back(fortune);
         }
+        /*else{
+            fortunes.erase(0);
+            fortunes.push_back(fortune);
+        }*/
 
         sendFortune();
 }
 
 void Widget::dropClient(QTcpSocket *client)
 {
-    trType = NO_TRANSACTION_TYPE;
     disconnect(client, &QAbstractSocket::readyRead, this, &Widget::hanleReadyRead);
     connect(client, &QAbstractSocket::disconnected,
             client, &QObject::deleteLater);

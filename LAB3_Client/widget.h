@@ -23,7 +23,6 @@ public:
     ~Widget();
 
 private slots:
-    void getFortune();
     void setFortune();
     void openConnection();
     void requestNewFortune();
@@ -35,8 +34,8 @@ private:
     QComboBox *hostCombo = nullptr;
     QLineEdit *portLineEdit = nullptr;
     QLineEdit *fortuneLineEdit = nullptr;
-    QPushButton *getFortuneButton = nullptr;
     QPushButton *setFortuneButton = nullptr;
+    QPushButton *startconnect = nullptr;
     QTextEdit *messages = nullptr;
 
     QTcpSocket *tcpSocket = nullptr;

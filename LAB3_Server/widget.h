@@ -9,9 +9,6 @@
 #include <QTcpServer>
 
 // int is used for this constants
-#define READ_FORTUNE_MARKER (0u)
-#define WRITE_FORTUNE_MARKER (1u)
-#define NO_TRANSACTION_TYPE (-1)
 
 class Widget : public QWidget
 {
@@ -34,7 +31,6 @@ private:
     QVector<QTcpSocket*> sockets;
 
     QDataStream in;
-    int trType = NO_TRANSACTION_TYPE;
 };
 
 #endif // WIDGET_H
